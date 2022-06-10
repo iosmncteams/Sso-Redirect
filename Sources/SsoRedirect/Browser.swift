@@ -6,12 +6,14 @@
 //
 
 import WebKit
-//
+import SafariServices
 
-class Browser: UIViewController {
+class Browser: UIViewController, WKNavigationDelegate, WKScriptMessageHandler {
     var webView: WKWebView!
     
     override func loadView() {
+        let configuration = WKWebViewConfiguration()
+        webView = WKWebView(frame: self.view.frame, configuration: configuration)
         webView = WKWebView()
         webView.navigationDelegate = self
         view = webView
@@ -23,9 +25,6 @@ class Browser: UIViewController {
         webView.load(URLRequest(url: url))
         webView.allowsBackForwardNavigationGestures = true
     }
-}
-
-extension Browser: WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard let url = webView.url else {
@@ -40,4 +39,24 @@ extension Browser: WKNavigationDelegate {
         print("@path = \(url.path)")
         print("@url = \(url)")
     }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.allow)
+            return
+        }
+        print("@absoluteString =\(url.absoluteString)")
+        print("@absoluteURL = \(url.absoluteURL)")
+        print("@host = \(url.host ?? "")")
+        print("@query = \(url.query ?? "")")
+        print("@scheme = \(url.scheme ?? "")")
+        print("@type = \(navigationAction.navigationType.rawValue)")
+        print("@path = \(url.path)")
+        print("@url = \(url)")
+    }
+    
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        print("satu")
+    }
 }
+
