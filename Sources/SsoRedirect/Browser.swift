@@ -12,7 +12,10 @@ class Browser: UIViewController, WKNavigationDelegate, WKScriptMessageHandler {
     var webView: WKWebView!
     
     override func loadView() {
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = true
         let configuration = WKWebViewConfiguration()
+        configuration.preferences = preferences
         webView = WKWebView(frame: self.view.frame, configuration: configuration)
         webView = WKWebView()
         webView.navigationDelegate = self
