@@ -13,8 +13,19 @@ public class SsoSign: UIViewController {
     override public func viewDidLoad() {
         super.viewDidLoad()
     }
+    
+    func getTopMostViewController() -> UIViewController? {
+        let keyWindow = UIApplication.shared.connectedScenes
+                .filter({$0.activationState == .foregroundActive})
+                .compactMap({$0 as? UIWindowScene})
+                .first?.windows
+                .filter({$0.isKeyWindow}).first
+
+        return keyWindow?.rootViewController
+    }
+    
     public func login() {
         let vc = Browser()
-        self.present(vc, animated: true)
+        getTopMostViewController()?.present(vc, animated: true)
     }
 }
