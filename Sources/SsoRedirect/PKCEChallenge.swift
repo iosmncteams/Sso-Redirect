@@ -30,7 +30,13 @@ enum PKCE {
 
     static func generateCodeChallenge(from string: String) -> String? {
         guard let data = string.data(using: .utf8) else { return nil }
-        let hashed = SHA256.hash(data: data)
-        return Data(hashed).pkce_base64EncodedString()
+        if #available(macOS 10.15, *) {
+            let hashed = SHA256.hash(data: data)
+            return Data(hashed).pkce_base64EncodedString()
+        } else {
+            // Fallback on earlier versions
+            return ""
+        }
+        
     }
 }
