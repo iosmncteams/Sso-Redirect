@@ -26,17 +26,17 @@ class Browser: UIViewController {
 }
 
 extension Browser: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let url = navigationAction.request.url else {
-            decisionHandler(.allow)
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard let url = webView.url else {
             return
         }
+        
         print("@absoluteString =\(url.absoluteString)")
         print("@absoluteURL = \(url.absoluteURL)")
         print("@host = \(url.host ?? "")")
         print("@query = \(url.query ?? "")")
         print("@scheme = \(url.scheme ?? "")")
-        print("@type = \(navigationAction.navigationType.rawValue)")
         print("@path = \(url.path)")
         print("@url = \(url)")
     }
