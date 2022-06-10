@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 public class SsoSign: UIViewController {
-    func login() {
+    public func login() {
         let vc = Browser()
         self.present(vc, animated: true)
     }
