@@ -4,7 +4,7 @@
 //
 //  Created by R+IOS on 10/06/22.
 //
-
+import UIKit
 import WebKit
 import SafariServices
 
@@ -20,7 +20,7 @@ class Browser: UIViewController, WKNavigationDelegate, WKScriptMessageHandler {
         webView = WKWebView(frame: self.view.frame, configuration: configuration)
         webView = WKWebView()
         webView.navigationDelegate = self
-        view = webView
+        view.addSubview(webView)
     }
     
     override func viewDidLoad() {
