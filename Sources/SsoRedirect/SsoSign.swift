@@ -37,18 +37,17 @@ public class SsoSign: UIViewController {
                 print(error!)
                 return
             }
-//            let cookievalue = getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
+            let cookievalue = self.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
+            
+            print("cookie value: \(cookievalue)")
         })
         self.authSession?.start()
         
         print("mulai start session")
-        
-//        if let url = URL(string: "https://dev-passport.rctiplus.com/login?application_id=5669acac-d4a1-4f5e-87ca-0d989df5efa7&redirect_uri=sampleproj://sample.com&scope=openid%20profile%20email&code_challenge=gptOwceoBveAK7QbKBcQxb59_aiaLkdtQHabaElaVGo&code_challenge_method=S256&response_type=code&state=1234567890") {
-//            let config = SFSafariViewController.Configuration()
-//            config.entersReaderIfAvailable = true
-//            
-//            let vc = SFSafariViewController(url: url, configuration: config)
-//            getTopMostViewController()?.present(vc, animated: true)
-//        }
+    }
+    
+    func getQueryStringParameter(url: String, param: String) -> String? {
+        guard let url = URLComponents(string: url) else { return nil }
+        return url.queryItems?.first(where: { $0.name == param })?.value
     }
 }
