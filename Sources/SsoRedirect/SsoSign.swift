@@ -8,9 +8,10 @@
 import Foundation
 import UIKit
 import SafariServices
+import AuthenticationServices
 
 public class SsoSign: UIViewController {
-    var authSession: SFAuthenticationSession?
+    var authSession: ASWebAuthenticationSession?
     let cookiename = "expiry-fix-test"
     
     override public func viewDidLoad() {
@@ -32,7 +33,7 @@ public class SsoSign: UIViewController {
 //        getTopMostViewController()?.present(vc, animated: true)
         //Initialize auth session
         let callbackUrl = "sampleproj://sample.com?"
-        self.authSession = SFAuthenticationSession(url: URL(string: "https://dev-passport.rctiplus.com/login?application_id=5669acac-d4a1-4f5e-87ca-0d989df5efa7&redirect_uri=sampleproj://sample.com&scope=openid%20profile%20email&code_challenge=gptOwceoBveAK7QbKBcQxb59_aiaLkdtQHabaElaVGo&code_challenge_method=S256&response_type=code&state=1234567890")!, callbackURLScheme: callbackUrl, completionHandler: { (callBack:URL?, error:Error? ) in
+        self.authSession = ASWebAuthenticationSession(url: URL(string: "https://dev-passport.rctiplus.com/login?application_id=5669acac-d4a1-4f5e-87ca-0d989df5efa7&redirect_uri=sampleproj://sample.com&scope=openid%20profile%20email&code_challenge=gptOwceoBveAK7QbKBcQxb59_aiaLkdtQHabaElaVGo&code_challenge_method=S256&response_type=code&state=1234567890")!, callbackURLScheme: callbackUrl, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
                 print(error!)
                 return
