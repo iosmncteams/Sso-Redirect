@@ -40,6 +40,7 @@ public class SsoSign: UIViewController {
             let cookievalue = self.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
             
             print("cookie value: \(cookievalue)")
+            print("callback: \(successURL)")
         })
         self.authSession?.start()
         
