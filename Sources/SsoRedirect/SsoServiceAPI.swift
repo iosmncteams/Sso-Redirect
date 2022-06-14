@@ -9,12 +9,12 @@ import Foundation
 
 enum SsoService {
     
-    static func requestWithHeader(method: Methods, header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping ([String: Any]?, Data) -> Void) {
+    static func requestWithHeader(method: Methods, auth_Key: String = "",header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping ([String: Any]?, Data) -> Void) {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = method.rawValue
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", forHTTPHeaderField: "Authorization")
+        request.addValue(auth_Key, forHTTPHeaderField: "Authorization")
         request.allHTTPHeaderFields = header
 
         let session = URLSession.shared

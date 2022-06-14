@@ -67,7 +67,7 @@ public class SsoSign: UIViewController {
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { respon, xdata in
+            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { respon, xdata in
                 
                 do {
                     print("DATA RESP: \(String(describing: respon))")
@@ -97,5 +97,12 @@ public class SsoSign: UIViewController {
     
     func getInfo(modelResponse : TokenModel.Response) {
         print("MODEL RESPONSE: \(modelResponse)")
+        
+        SsoService.requestWithHeader(method: .get, auth_Key: modelResponse.access_token!, url: "https://dev-auth-api.rctiplus.com/v1/user/info", completion: { respon, xdata in
+            
+            print("DATA RESP INFO: \(String(describing: respon))")
+            
+        })
+        
     }
 }
