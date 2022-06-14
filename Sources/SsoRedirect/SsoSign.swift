@@ -14,6 +14,8 @@ public class SsoSign: UIViewController {
     var authSession: ASWebAuthenticationSession?
     let cookiename = "expiry-fix-test"
     
+    var contextProvider: AuthContextProvider?
+    
     override public func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -39,11 +41,22 @@ public class SsoSign: UIViewController {
                 print(error!)
                 return
             }
+            
+            if #available(iOS 13, *) {
+                self.contextProvider?.clear() // clear context
+            }
+            
             let cookievalue = self.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
             
             print("cookie value: \(cookievalue)")
             print("callback: \(successURL)")
         })
+        
+        if #available(iOS 13, *) {
+            self.contextProvider = ContextProvider() // retain context
+            self.authSession?.presentationContextProvider = self.contextProvider
+        }
+        
         self.authSession?.start()
         
         print("mulai start session")
