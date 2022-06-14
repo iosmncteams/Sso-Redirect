@@ -48,8 +48,9 @@ public class SsoSign: UIViewController {
             
             let cookievalue = self.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
             
-            print("cookie value: \(cookievalue)")
-            print("callback: \(successURL)")
+            print("cookie value: \(String(describing: cookievalue))")
+            let auth_code = successURL.absoluteString.slice(from: "authorization_code=", to: "&state")
+            print("callback: \(String(describing: auth_code))")
         })
         
         if #available(iOS 13, *) {

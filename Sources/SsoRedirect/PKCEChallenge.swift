@@ -21,6 +21,16 @@ extension Data {
     }
 }
 
+extension String {
+    func slice(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                String(self[substringFrom..<substringTo])
+            }
+        }
+    }
+}
+
 enum PKCE {
     static func generateCodeVerifier() -> String {
         var buffer = [UInt8](repeating: 0, count: 32)
