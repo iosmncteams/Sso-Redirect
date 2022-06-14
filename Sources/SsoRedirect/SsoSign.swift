@@ -67,8 +67,15 @@ public class SsoSign: UIViewController {
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { response in
-                
+            SsoService.requestWithHeader(method: .post, params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { respon, xdata in
+                do {
+                    print("DATA RESP: \(String(describing: respon))")
+                    let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
+                    
+                    self.getInfo(modelResponse: decodeData)
+                }catch let error as NSError {
+                    print("Failed to load: \(error.localizedDescription)")
+                }
             })
         })
         
@@ -85,5 +92,9 @@ public class SsoSign: UIViewController {
     func getQueryStringParameter(url: String, param: String) -> String? {
         guard let url = URLComponents(string: url) else { return nil }
         return url.queryItems?.first(where: { $0.name == param })?.value
+    }
+    
+    func getInfo(modelResponse : TokenModel.Response) {
+        print("MODEL RESPONSE: \(modelResponse)")
     }
 }

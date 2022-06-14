@@ -9,7 +9,7 @@ import Foundation
 
 enum SsoService {
     
-    static func requestWithHeader(method: Methods, header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping (Data?) -> Void) {
+    static func requestWithHeader(method: Methods, header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping ([String: Any]?, Data) -> Void) {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = method.rawValue
         request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
@@ -27,9 +27,10 @@ enum SsoService {
                 // convert data to json
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                     // try to read out a dictionary
-                    print("JSON DATA: \(json)")
-                    if let data = json["data"] as? [String:Any] {
-                        print("DATA RESP: \(data)")
+                    if let xData = json["data"] as? [String:Any] {
+                        DispatchQueue.main.async {
+                            completion(xData, data)
+                        }
                         /*if let prices = data["prices"] as? [[String:Any]] {
                          print(prices)
                          let dict = prices[0]
@@ -42,15 +43,6 @@ enum SsoService {
                 }
             } catch let error as NSError {
                 print("Failed to load: \(error.localizedDescription)")
-            }
-            
-            /*guard let data = data else {
-             completion(nil)
-             return
-             }*/
-            
-            DispatchQueue.main.async {
-                completion(data)
             }
         })
 
