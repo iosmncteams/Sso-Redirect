@@ -12,7 +12,11 @@ enum SsoService {
     static func requestWithHeader(method: Methods, auth_Key: String = "",header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping ([String: Any]?, Data) -> Void) {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = method.rawValue
-        request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        
+        if !params.isEmpty {
+            request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+        }
+        
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue(auth_Key, forHTTPHeaderField: "Authorization")
         request.allHTTPHeaderFields = header
