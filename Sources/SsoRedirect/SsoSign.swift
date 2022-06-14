@@ -95,8 +95,9 @@ public class SsoSign: UIViewController {
     
     func getInfo(modelResponse : TokenModel.Response) {
 //        print("MODEL RESPONSE: \(modelResponse)")
+        let access_token = "Bearer \(modelResponse.access_token!)"
         
-        SsoService.requestWithHeader(method: .get, auth_Key: modelResponse.access_token!, url: "https://dev-auth-api.rctiplus.com/v1/user/info", completion: { respon, xdata in
+        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "https://dev-auth-api.rctiplus.com/v1/user/info", completion: { respon, xdata in
             
 //            print("DATA RESP INFO: \(String(describing: respon))")
             
