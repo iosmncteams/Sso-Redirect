@@ -68,10 +68,11 @@ public class SsoSign: UIViewController {
                                                   code_verifier: self.codeVerifier)
             
             SsoService.requestWithHeader(method: .post, params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { respon, xdata in
+                
                 do {
                     print("DATA RESP: \(String(describing: respon))")
                     let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
-                    
+                    print("DECODE DATA: \(decodeData)")
                     self.getInfo(modelResponse: decodeData)
                 }catch let error as NSError {
                     print("Failed to load: \(error.localizedDescription)")

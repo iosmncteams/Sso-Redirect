@@ -28,8 +28,9 @@ enum SsoService {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                     // try to read out a dictionary
                     if let xData = json["data"] as? [String:Any] {
+                        let jsonData = try JSONSerialization.data(withJSONObject: xData)
                         DispatchQueue.main.async {
-                            completion(xData, data)
+                            completion(xData, jsonData)
                         }
                         /*if let prices = data["prices"] as? [[String:Any]] {
                          print(prices)
