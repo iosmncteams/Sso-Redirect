@@ -60,6 +60,16 @@ public class SsoSign: UIViewController {
             print("cookie value: \(String(describing: cookievalue))")
             let auth_code = successURL.absoluteString.slice(from: "authorization_code=", to: "&state")
             print("callback: \(String(describing: auth_code))")
+            
+            let tokenRequest = TokenModel.Request(application_id: "5669acac-d4a1-4f5e-87ca-0d989df5efa7",
+                                                  application_secret: "8e27e7c85ca50e592a6e07e800b46de83e8936704fd34f14b7c3f6847549c929",
+                                                  token_type: "bearer",
+                                                  authorization_code: auth_code,
+                                                  code_verifier: self.codeVerifier)
+            
+            SsoService.requestWithHeader(method: .post, params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { response in
+                
+            })
         })
         
         if #available(iOS 13, *) {
