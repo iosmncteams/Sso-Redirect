@@ -45,8 +45,6 @@ public class SsoSign: UIViewController {
         
         codeVerifier = PKCE.generateCodeVerifier()
         codeChallenge = PKCE.generateCodeChallenge(from: codeVerifier!)
-        
-        print("CODE VERiFIer: \(codeVerifier!)")
     }
     
     public func login() {
@@ -76,7 +74,7 @@ public class SsoSign: UIViewController {
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", completion: { respon, xdata in
+            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", isGetInfo: false, completion: { respon, xdata in
                 
                 do {
                     let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
@@ -106,10 +104,10 @@ public class SsoSign: UIViewController {
 //        print("MODEL RESPONSE: \(modelResponse)")
         let access_token = "Bearer \(modelResponse.access_token!)"
         
-        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "https://dev-auth-api.rctiplus.com/v1/user/info", completion: { respon, xdata in
+        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "https://dev-auth-api.rctiplus.com/v1/user/info", isGetInfo: true, completion: { respon, xdata in
             
-//            print("DATA RESP INFO: \(String(describing: respon))")
-            
+            let responseData = String(data: xdata, encoding: String.Encoding.utf8)
+            self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: responseData ?? "")
         })
         
     }

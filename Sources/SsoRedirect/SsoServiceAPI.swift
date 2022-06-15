@@ -7,11 +7,9 @@
 
 import Foundation
 
-
-
 enum SsoService {
     
-    static func requestWithHeader(method: Methods, auth_Key: String = "",header: [String: String] = [:] , params: [String: Any] = [:], url: String, completion: @escaping ([String: Any]?, Data) -> Void) {
+    static func requestWithHeader(method: Methods, auth_Key: String = "",header: [String: String] = [:] , params: [String: Any] = [:], url: String, isGetInfo: Bool?, completion: @escaping ([String: Any]?, Data) -> Void) {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = method.rawValue
         
@@ -28,30 +26,35 @@ enum SsoService {
             
             guard let data = data, error == nil else { return }
             
-            do {
-                // make sure this JSON is in the format we expect
-                // convert data to json
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    // try to read out a dictionary
-                    if let xData = json["data"] as? [String:Any] {
-                        print("JSON DATA: \(xData)")
-                        let jsonData = try JSONSerialization.data(withJSONObject: xData)
-                        DispatchQueue.main.async {
-                            completion(xData, jsonData)
+            if isGetInfo! {
+                completion(nil, data)
+            }else{
+                do {
+                    // make sure this JSON is in the format we expect
+                    // convert data to json
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                        // try to read out a dictionary
+                        if let xData = json["data"] as? [String:Any] {
+                            print("JSON DATA: \(xData)")
+                            let jsonData = try JSONSerialization.data(withJSONObject: xData)
+                            DispatchQueue.main.async {
+                                completion(xData, jsonData)
+                            }
+                            /*if let prices = data["prices"] as? [[String:Any]] {
+                             print(prices)
+                             let dict = prices[0]
+                             print(dict)
+                             if let price = dict["price"] as? String{
+                             print(price)
+                             }
+                             }*/
                         }
-                        /*if let prices = data["prices"] as? [[String:Any]] {
-                         print(prices)
-                         let dict = prices[0]
-                         print(dict)
-                         if let price = dict["price"] as? String{
-                         print(price)
-                         }
-                         }*/
                     }
+                } catch let error as NSError {
+                    print("Failed to load: \(error.localizedDescription)")
                 }
-            } catch let error as NSError {
-                print("Failed to load: \(error.localizedDescription)")
             }
+            
         })
 
         task.resume()
