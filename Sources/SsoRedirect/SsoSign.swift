@@ -10,9 +10,15 @@ import UIKit
 import SafariServices
 import AuthenticationServices
 
+public protocol SsoSignDelegate {
+    func onUserInfoReceived(onUserInfoReceivedMessage: String)
+}
+
 public class SsoSign: UIViewController {
     var authSession: ASWebAuthenticationSession?
     let cookiename = "expiry-fix-test"
+    
+    var delegate: SsoSignDelegate? = nil
     
     var contextProvider: AuthContextProvider?
     
@@ -33,7 +39,10 @@ public class SsoSign: UIViewController {
         return keyWindow?.rootViewController
     }
     
-    public func initialize() {
+    public func initialize(delegateClass: SsoSignDelegate) {
+        
+        self.delegate = delegateClass
+        
         codeVerifier = PKCE.generateCodeVerifier()
         codeChallenge = PKCE.generateCodeChallenge(from: codeVerifier!)
         
