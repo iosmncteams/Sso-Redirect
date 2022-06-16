@@ -73,11 +73,11 @@ public class SsoSign: UIViewController {
         let callbackUrl = "sampleproj://sample.com?"
         let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
-        let baseUrl = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=sampleproj://sample.com&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
+        let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=sampleproj://sample.com&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
         
         print("BASE_URL: \(baseUrl)")
         
-        /*self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
+        self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
                 print(error!)
                 return
@@ -108,8 +108,7 @@ public class SsoSign: UIViewController {
                     print("Failed to load: \(error.localizedDescription)")
                 }
             })
-        })*/
-        
+        })
         
         if #available(iOS 13, *) {
             self.contextProvider = ContextProvider() // retain context
@@ -117,8 +116,6 @@ public class SsoSign: UIViewController {
         }
         
         self.authSession?.start()
-        
-        print("mulai start session")
     }
     
     func getQueryStringParameter(url: String, param: String) -> String? {
