@@ -25,6 +25,13 @@ public class SsoSign: UIViewController {
     var codeVerifier: String?
     var codeChallenge: String?
     
+    var APPLICATION_NAME: String = ""
+    var APPLICATION_ID: String = ""
+    var APPLICATION_SECRET: String = ""
+    var AUTH_URL_SSO: String = ""
+    var TOKEN_URL_SSO: String = ""
+    var USER_INFO_URL_SSO: String = ""
+    
     override public func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -39,9 +46,22 @@ public class SsoSign: UIViewController {
         return keyWindow?.rootViewController
     }
     
-    public func initialize(delegateClass: SsoSignDelegate) {
+    public func initialize(applicationID: String,
+                           applicationSecret: String,
+                           scope: String,
+                           authUrl: String,
+                           tokenUrl: String,
+                           userInfoUrl: String,
+                           delegateClass: SsoSignDelegate) {
         
         self.delegate = delegateClass
+        
+        self.APPLICATION_NAME = applicationID
+        self.APPLICATION_ID = applicationSecret
+        self.APPLICATION_SECRET = scope
+        self.AUTH_URL_SSO = authUrl
+        self.TOKEN_URL_SSO = tokenUrl
+        self.USER_INFO_URL_SSO = userInfoUrl
         
         codeVerifier = PKCE.generateCodeVerifier()
         codeChallenge = PKCE.generateCodeChallenge(from: codeVerifier!)
@@ -52,7 +72,7 @@ public class SsoSign: UIViewController {
         //Initialize auth session
         let callbackUrl = "sampleproj://sample.com?"
         let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        self.authSession = ASWebAuthenticationSession(url: URL(string: "https://dev-passport.rctiplus.com/login?application_id=5669acac-d4a1-4f5e-87ca-0d989df5efa7&redirect_uri=sampleproj://sample.com&scope=openid%20profile%20email&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890")!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
+        self.authSession = ASWebAuthenticationSession(url: URL(string: "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=sampleproj://sample.com&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890")!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
                 print(error!)
                 return
@@ -68,13 +88,13 @@ public class SsoSign: UIViewController {
             let auth_code = successURL.absoluteString.slice(from: "authorization_code=", to: "&state")
             print("callback: \(String(describing: auth_code))")
             
-            let tokenRequest = TokenModel.Request(application_id: "5669acac-d4a1-4f5e-87ca-0d989df5efa7",
-                                                  application_secret: "8e27e7c85ca50e592a6e07e800b46de83e8936704fd34f14b7c3f6847549c929",
+            let tokenRequest = TokenModel.Request(application_id: self.APPLICATION_ID,
+                                                  application_secret: self.APPLICATION_SECRET,
                                                   token_type: "bearer",
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "https://dev-auth-api.rctiplus.com/v1/partner/token", isGetInfo: false, completion: { respon, xdata in
+            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata in
                 
                 do {
                     let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
@@ -104,7 +124,7 @@ public class SsoSign: UIViewController {
 //        print("MODEL RESPONSE: \(modelResponse)")
         let access_token = "Bearer \(modelResponse.access_token!)"
         
-        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "https://dev-auth-api.rctiplus.com/v1/user/info", isGetInfo: true, completion: { respon, xdata in
+        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata in
             
             let responseData = String(data: xdata, encoding: String.Encoding.utf8)
             self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: responseData ?? "")
