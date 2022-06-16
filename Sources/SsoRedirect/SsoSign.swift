@@ -56,9 +56,11 @@ public class SsoSign: UIViewController {
         
         self.delegate = delegateClass
         
-        self.APPLICATION_NAME = applicationID
-        self.APPLICATION_ID = applicationSecret
-        self.APPLICATION_SECRET = scope
+        var urlString = scope.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        
+        self.APPLICATION_NAME = urlString!
+        self.APPLICATION_ID = applicationID
+        self.APPLICATION_SECRET = applicationSecret
         self.AUTH_URL_SSO = authUrl
         self.TOKEN_URL_SSO = tokenUrl
         self.USER_INFO_URL_SSO = userInfoUrl
@@ -68,7 +70,7 @@ public class SsoSign: UIViewController {
     }
     
     public func login() {
-        print("CODE Challenge: \(AUTH_URL_SSO)")
+        print("CODE Challenge: \(APPLICATION_NAME)")
         //Initialize auth session
         let callbackUrl = "sampleproj://sample.com?"
         let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
