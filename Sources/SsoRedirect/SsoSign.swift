@@ -76,10 +76,10 @@ public class SsoSign: UIViewController {
     
     public func login() {
         //Initialize auth session
-        let callbackUrl = "sampleproj://sample.com?"
+        let callbackUrl = "com.mncgroup.sampleproject2://ssoredirectclient?"
         let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
-        let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=sampleproj://sample.com&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
+        let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=com.mncgroup.sampleproject2://ssoredirectclient&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
         
         self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
