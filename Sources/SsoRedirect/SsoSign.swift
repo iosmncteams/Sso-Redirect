@@ -12,6 +12,7 @@ import AuthenticationServices
 
 public protocol SsoSignDelegate {
     func onUserInfoReceived(onUserInfoReceivedMessage: String)
+    func onLogout(onLogoutMessage: String)
 }
 
 public class SsoSign: UIViewController {
@@ -31,6 +32,8 @@ public class SsoSign: UIViewController {
     var AUTH_URL_SSO: String = ""
     var TOKEN_URL_SSO: String = ""
     var USER_INFO_URL_SSO: String = ""
+    var LOGOUT_URL_SSO: String = ""
+    var ACCESS_TOKEN: String = ""
     
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -52,11 +55,12 @@ public class SsoSign: UIViewController {
                            authUrl: String,
                            tokenUrl: String,
                            userInfoUrl: String,
+                           logoutUrl: String,
                            delegateClass: SsoSignDelegate) {
         
         self.delegate = delegateClass
         
-        var urlString = scope.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        let urlString = scope.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         
         self.APPLICATION_NAME = urlString!
         self.APPLICATION_ID = applicationID
@@ -64,6 +68,7 @@ public class SsoSign: UIViewController {
         self.AUTH_URL_SSO = authUrl
         self.TOKEN_URL_SSO = tokenUrl
         self.USER_INFO_URL_SSO = userInfoUrl
+        self.LOGOUT_URL_SSO = logoutUrl
         
         codeVerifier = PKCE.generateCodeVerifier()
         codeChallenge = PKCE.generateCodeChallenge(from: codeVerifier!)
@@ -101,7 +106,7 @@ public class SsoSign: UIViewController {
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata in
+            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata, statusCode in
                 
                 do {
                     let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
@@ -120,16 +125,23 @@ public class SsoSign: UIViewController {
         self.authSession?.start()
     }
     
+    public func logout() {
+        SsoService.requestWithHeader(method: .post, auth_Key: self.ACCESS_TOKEN, url: self.LOGOUT_URL_SSO, isGetInfo: false, completion: { respon, xdata, statusCode in
+            if statusCode == 200 {
+                self.delegate?.onLogout(onLogoutMessage: "Logout Berhasil")
+            }
+        })
+    }
+    
     func getQueryStringParameter(url: String, param: String) -> String? {
         guard let url = URLComponents(string: url) else { return nil }
         return url.queryItems?.first(where: { $0.name == param })?.value
     }
     
     func getInfo(modelResponse : TokenModel.Response) {
-        //        print("MODEL RESPONSE: \(modelResponse)")
-        let access_token = "Bearer \(modelResponse.access_token!)"
+        self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
-        SsoService.requestWithHeader(method: .get, auth_Key: access_token, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata in
+        SsoService.requestWithHeader(method: .get, auth_Key: self.ACCESS_TOKEN, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata, statusCode in
             
             let responseData = String(data: xdata, encoding: String.Encoding.utf8)
             self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: responseData ?? "")
