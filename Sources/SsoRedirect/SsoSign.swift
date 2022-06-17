@@ -75,14 +75,11 @@ public class SsoSign: UIViewController {
     }
     
     public func login() {
-        print("CODE Challenge: \(APPLICATION_NAME)")
         //Initialize auth session
         let callbackUrl = "sampleproj://sample.com?"
         let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
         let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=sampleproj://sample.com&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
-        
-        print("BASE_URL: \(baseUrl)")
         
         self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
@@ -94,7 +91,7 @@ public class SsoSign: UIViewController {
                 self.contextProvider?.clear() // clear context
             }
             
-            let cookievalue = self.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
+            let cookievalue = Utils.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
             
             print("cookie value: \(String(describing: cookievalue))")
             let auth_code = successURL.absoluteString.slice(from: "authorization_code=", to: "&state")
@@ -133,9 +130,22 @@ public class SsoSign: UIViewController {
         })
     }
     
-    func getQueryStringParameter(url: String, param: String) -> String? {
-        guard let url = URLComponents(string: url) else { return nil }
-        return url.queryItems?.first(where: { $0.name == param })?.value
+    public func externalURLScheme() -> String? {
+        guard let urlTypes = Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [AnyObject],
+              let urlTypeDictionary = urlTypes.first as? [String: AnyObject],
+              let urlSchemes = urlTypeDictionary["CFBundleURLSchemes"] as? [AnyObject],
+              let externalURLScheme = urlSchemes.first as? String else { return nil }
+        
+        return externalURLScheme
+    }
+    
+    public func getURLSchema() -> String? {
+        guard let schemas = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String:Any]],
+              let schema = schemas.first,
+              let urlschema = schema["CFBundleURLName"] as? String
+        else { return nil }
+        
+        return urlschema
     }
     
     func getInfo(modelResponse : TokenModel.Response) {
