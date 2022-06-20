@@ -11,6 +11,12 @@ import SafariServices
 import AuthenticationServices
 
 public protocol SsoSignDelegate {
+    func onAccessTokenReceived(onAccessTokenReceivedMessage: String)
+    func onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: String)
+    func onRefreshTokenReceived(onRefreshTokenReceivedMessage: String)
+    func onIdTokenReceived(onIdTokenReceivedMessage: String)
+    func onUserIdReceived(onUserIdReceivedMessage: String)
+    func onAuthorized(onAuthorizedMessage: String)
     func onUserInfoReceived(onUserInfoReceivedMessage: String)
     func onLogout(onLogoutMessage: String)
 }
@@ -22,6 +28,7 @@ public class SsoSign: UIViewController {
     var delegate: SsoSignDelegate? = nil
     
     var contextProvider: AuthContextProvider?
+    var tokenModel = TokenModel.Response()
     
     var codeVerifier: String?
     var codeChallenge: String?
@@ -111,8 +118,8 @@ public class SsoSign: UIViewController {
             SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata, statusCode in
                 
                 do {
-                    let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
-                    self.getInfo(modelResponse: decodeData)
+                    self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
+                    self.getInfo(modelResponse: self.tokenModel)
                 }catch let error as NSError {
                     print("Failed to load: \(error.localizedDescription)")
                 }
@@ -130,7 +137,7 @@ public class SsoSign: UIViewController {
     public func logout() {
         SsoService.requestWithHeader(method: .post, auth_Key: self.ACCESS_TOKEN, url: self.LOGOUT_URL_SSO, isGetInfo: false, completion: { respon, xdata, statusCode in
             if statusCode == 200 {
-                self.delegate?.onLogout(onLogoutMessage: "Logout Berhasil")
+                self.delegate?.onLogout(onLogoutMessage: "LOGOUT")
             }
         })
     }
@@ -155,6 +162,11 @@ public class SsoSign: UIViewController {
     
     public func getBundleIdentifier() -> String? {
         return Utils.getBundleIdentifier()
+    }
+    
+    public func getAccessToken() -> String? {
+        print("ACCESS TOKEN: \(tokenModel.access_token!)")
+        return ""
     }
     
     func getInfo(modelResponse : TokenModel.Response) {
