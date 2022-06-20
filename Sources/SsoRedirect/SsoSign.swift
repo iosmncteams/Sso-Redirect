@@ -34,6 +34,9 @@ public class SsoSign: UIViewController {
     var USER_INFO_URL_SSO: String = ""
     var LOGOUT_URL_SSO: String = ""
     var ACCESS_TOKEN: String = ""
+    var CALLBACK_URL: String = ""
+    var SUFFIX_URL: String = "://ssoredirectclient"
+    var AUTH_KEY: String = "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg=="
     
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +59,7 @@ public class SsoSign: UIViewController {
                            tokenUrl: String,
                            userInfoUrl: String,
                            logoutUrl: String,
+                           bundleId: String,
                            delegateClass: SsoSignDelegate) {
         
         self.delegate = delegateClass
@@ -69,6 +73,7 @@ public class SsoSign: UIViewController {
         self.TOKEN_URL_SSO = tokenUrl
         self.USER_INFO_URL_SSO = userInfoUrl
         self.LOGOUT_URL_SSO = logoutUrl
+        self.CALLBACK_URL = bundleId + self.SUFFIX_URL
         
         codeVerifier = PKCE.generateCodeVerifier()
         codeChallenge = PKCE.generateCodeChallenge(from: codeVerifier!)
@@ -76,10 +81,10 @@ public class SsoSign: UIViewController {
     
     public func login() {
         //Initialize auth session
-        let callbackUrl = "com.mncgroup.sampleproject2://ssoredirectclient?"
-        let callbackURI = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+//        let callbackUrl = "com.mncgroup.sampleproject2://ssoredirectclient?"
+        let callbackURI = CALLBACK_URL.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
-        let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=com.mncgroup.sampleproject2://ssoredirectclient&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
+        let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=\(self.CALLBACK_URL)&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
         
         self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
@@ -103,7 +108,7 @@ public class SsoSign: UIViewController {
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, auth_Key: "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg==", params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata, statusCode in
+            SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata, statusCode in
                 
                 do {
                     let decodeData = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
