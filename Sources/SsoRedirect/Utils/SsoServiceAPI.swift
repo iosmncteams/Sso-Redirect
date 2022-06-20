@@ -25,30 +25,28 @@ enum SsoService {
         let task = session.dataTask(with: request, completionHandler: { data, response, error -> Void in
             
             guard let data = data, error == nil else { return }
-            
-            if isGetInfo! {
-                completion(nil, data, 1002)
-            }else{
-                do {
-                    if let httpResponse = response as? HTTPURLResponse {
+            if let httpResponse = response as? HTTPURLResponse {
+                if isGetInfo! {
+                    completion(nil, data, httpResponse.statusCode)
+                }else{
+                    do {
                         // make sure this JSON is in the format we expect
                         // convert data to json
                         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                             // try to read out a dictionary
                             if let xData = json["data"] as? [String:Any] {
-                                print("JSON DATA: \(xData)")
                                 let jsonData = try JSONSerialization.data(withJSONObject: xData)
                                 DispatchQueue.main.async {
                                     completion(xData, jsonData, httpResponse.statusCode)
                                 }
                             }
                         }
+                        
+                    } catch let error as NSError {
+                        print("Failed to load: \(error.localizedDescription)")
                     }
-                } catch let error as NSError {
-                    print("Failed to load: \(error.localizedDescription)")
                 }
             }
-            
         })
 
         task.resume()

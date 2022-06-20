@@ -148,6 +148,10 @@ public class SsoSign: UIViewController {
         return urlschema
     }
     
+    public func getBundleIdentifier() -> String? {
+        return Utils.getBundleIdentifier()
+    }
+    
     func getInfo(modelResponse : TokenModel.Response) {
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
