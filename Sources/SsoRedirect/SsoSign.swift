@@ -29,6 +29,7 @@ public class SsoSign: UIViewController {
     
     var contextProvider: AuthContextProvider?
     var tokenModel = TokenModel.Response()
+    var userData: String = ""
     
     var codeVerifier: String?
     var codeChallenge: String?
@@ -42,7 +43,7 @@ public class SsoSign: UIViewController {
     var LOGOUT_URL_SSO: String = ""
     var ACCESS_TOKEN: String = ""
     var CALLBACK_URL: String = ""
-    var SUFFIX_URL: String = "://ssoredirectclient"
+    var SUFFIX_URL: String = "://oauth2redirect"//"://ssoredirectclient"
     var AUTH_KEY: String = "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg=="
     
     override public func viewDidLoad() {
@@ -177,13 +178,21 @@ public class SsoSign: UIViewController {
         return tokenModel.access_token
     }
     
+    public func getIdToken() -> String? {
+        return tokenModel.id_token
+    }
+    
+    public func getUserInfo() -> String? {
+        return self.userData
+    }
+    
     func getInfo(modelResponse : TokenModel.Response) {
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
         SsoService.requestWithHeader(method: .get, auth_Key: self.ACCESS_TOKEN, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata, statusCode in
             
-            let responseData = String(data: xdata, encoding: String.Encoding.utf8)
-            self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: responseData ?? "")
+            self.userData = String(data: xdata, encoding: String.Encoding.utf8)!
+            self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: self.userData )
         })
         
     }
