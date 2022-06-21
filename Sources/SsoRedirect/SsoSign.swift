@@ -119,7 +119,13 @@ public class SsoSign: UIViewController {
                 
                 do {
                     self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
+                    
                     self.getInfo(modelResponse: self.tokenModel)
+                    self.delegate?.onAccessTokenReceived(onAccessTokenReceivedMessage: self.tokenModel.access_token!)
+                    self.delegate?.onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: "\(Utils.intToDate(expiresIn: self.tokenModel.expires_in!))")
+                    self.delegate?.onRefreshTokenReceived(onRefreshTokenReceivedMessage: self.tokenModel.refresh_token!)
+                    self.delegate?.onIdTokenReceived(onIdTokenReceivedMessage: self.tokenModel.id_token!)
+                    self.delegate?.onAuthorized(onAuthorizedMessage: "Authorized Success")
                 }catch let error as NSError {
                     print("Failed to load: \(error.localizedDescription)")
                 }
@@ -165,8 +171,7 @@ public class SsoSign: UIViewController {
     }
     
     public func getAccessToken() -> String? {
-        print("ACCESS TOKEN: \(tokenModel.access_token!)")
-        return ""
+        return tokenModel.access_token
     }
     
     func getInfo(modelResponse : TokenModel.Response) {

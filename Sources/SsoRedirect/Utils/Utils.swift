@@ -16,4 +16,11 @@ enum Utils {
     static func getBundleIdentifier() -> String? {
         return Bundle.main.bundleIdentifier?.lowercased()
     }
+    
+    static func intToDate(expiresIn: Int) -> Date {
+      let timeInterval = TimeInterval(expiresIn)
+      // create NSDate from Double (NSTimeInterval)
+      let myNSDate = Date(timeIntervalSince1970: timeInterval)
+      return myNSDate
+    }
 }
