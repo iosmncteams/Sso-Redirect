@@ -21,7 +21,7 @@ public protocol SsoSignDelegate {
     func onLogout(onLogoutMessage: String)
 }
 
-public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextProviding {
+public class SsoSign: UIViewController {
     var authSession: ASWebAuthenticationSession?
     let cookiename = "expiry-fix-test"
     
@@ -140,8 +140,8 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         })
         
         if #available(iOS 13, *) {
-//            self.contextProvider = ContextProvider() // retain context
-            self.authSession?.presentationContextProvider = self
+            self.contextProvider = ContextProvider() // retain context
+            self.authSession?.presentationContextProvider = self.contextProvider
         }
         
         if !self.authSession!.start() {
@@ -189,10 +189,6 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     
     public func getUserInfo() -> String? {
         return self.userData
-    }
-    
-    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return view.window!
     }
     
     func getInfo(modelResponse : TokenModel.Response) {
