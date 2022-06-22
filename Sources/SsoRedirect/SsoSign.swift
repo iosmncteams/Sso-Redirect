@@ -147,7 +147,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         if #available(iOS 13, *) {
 //            self.contextProvider = ContextProvider() // retain context
             self.authSession?.presentationContextProvider = self
-            self.authSession?.prefersEphemeralWebBrowserSession = true
+            self.authSession?.prefersEphemeralWebBrowserSession = false
         }
         
         if !self.authSession!.start() {
