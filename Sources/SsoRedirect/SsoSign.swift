@@ -21,7 +21,7 @@ public protocol SsoSignDelegate {
     func onLogout(onLogoutMessage: String)
 }
 
-public class SsoSign: UIViewController {
+public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextProviding {
     var authSession: ASWebAuthenticationSession?
     let cookiename = "expiry-fix-test"
     
@@ -97,7 +97,10 @@ public class SsoSign: UIViewController {
         
         print("BASE URL : \(baseUrl)")
         
-        self.authSession = ASWebAuthenticationSession(url: URL(string: baseUrl)!, callbackURLScheme: callbackURI, completionHandler: { (callBack:URL?, error:Error? ) in
+        self.authSession = ASWebAuthenticationSession(
+            url: URL(string: baseUrl)!,
+            callbackURLScheme: callbackURI,
+            completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
                 print(error!)
                 return
@@ -137,11 +140,13 @@ public class SsoSign: UIViewController {
         })
         
         if #available(iOS 13, *) {
-            self.contextProvider = ContextProvider() // retain context
-            self.authSession?.presentationContextProvider = self.contextProvider
+//            self.contextProvider = ContextProvider() // retain context
+            self.authSession?.presentationContextProvider = self
         }
         
-        self.authSession?.start()
+        if !self.authSession!.start() {
+          print("Failed to start ASWebAuthenticationSession")
+        }
     }
     
     public func logout() {
@@ -184,6 +189,10 @@ public class SsoSign: UIViewController {
     
     public func getUserInfo() -> String? {
         return self.userData
+    }
+    
+    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return view.window!
     }
     
     func getInfo(modelResponse : TokenModel.Response) {
