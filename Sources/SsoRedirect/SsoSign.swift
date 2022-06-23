@@ -105,7 +105,6 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
             callbackURLScheme: callbackURI,
             completionHandler: { (callBack:URL?, error:Error? ) in
             guard error == nil, let successURL = callBack else {
-                print(error!)
                 return
             }
             
@@ -213,9 +212,10 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
                                                   token_type: "bearer",
                                                   refresh_token: self.tokenModel.refresh_token)
         
+        print("REFRESH REQ: \(refreshRequest.toJSON())")
+        
         SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/v1/partner/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
             
-            print("JSON RESPONSE: \(String(describing: respon))")
             print("JSON xDATA: \(xdata)")
             
             do {
