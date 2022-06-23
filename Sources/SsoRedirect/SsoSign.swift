@@ -34,6 +34,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     
     var contextProvider: AuthContextProvider?
     var tokenModel = TokenModel.Response()
+    var refreshModel = RefreshModel.Response()
     var userData: String = ""
     
     var codeVerifier: String?
@@ -192,6 +193,10 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         return self.userData
     }
     
+    public func refreshTokenExpired() {
+        self.refreshToken()
+    }
+    
     func getInfo(modelResponse : TokenModel.Response) {
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
@@ -201,5 +206,26 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
             self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: self.userData )
         })
         
+    }
+    
+    func refreshToken() {
+        let refreshRequest = RefreshModel.Request(application_id: self.APPLICATION_ID,
+                                                  application_secret: self.APPLICATION_SECRET,
+                                                  token_type: "bearer",
+                                                  refresh_token: tokenModel.refresh_token)
+        
+        SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/v1/partner/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
+            do {
+                self.refreshModel = try JSONDecoder().decode(RefreshModel.Response.self, from: xdata)
+                print("REFRESH MODEL : \(self.refreshModel)")
+                /*self.delegate?.onAccessTokenReceived(onAccessTokenReceivedMessage: self.tokenModel.access_token!)
+                self.delegate?.onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: "\(Utils.intToDate(expiresIn: self.tokenModel.expires_in!))")
+                self.delegate?.onRefreshTokenReceived(onRefreshTokenReceivedMessage: self.tokenModel.refresh_token!)
+                self.delegate?.onIdTokenReceived(onIdTokenReceivedMessage: self.tokenModel.id_token!)
+                self.delegate?.onAuthorized(onAuthorizedMessage: "Authorized Success")*/
+            }catch let error as NSError {
+                print("Failed to load: \(error.localizedDescription)")
+            }
+        })
     }
 }
