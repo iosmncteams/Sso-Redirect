@@ -13,6 +13,8 @@ enum SsoService {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = method.rawValue
         
+        print("API URL: \(url)")
+        
         if !params.isEmpty {
             request.httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
         }
@@ -35,6 +37,7 @@ enum SsoService {
                         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                             // try to read out a dictionary
                             if let xData = json["data"] as? [String:Any] {
+                                print("JSON xDATA: \(xdata)")
                                 let jsonData = try JSONSerialization.data(withJSONObject: xData)
                                 DispatchQueue.main.async {
                                     completion(xData, jsonData, httpResponse.statusCode)
