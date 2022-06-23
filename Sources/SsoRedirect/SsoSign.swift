@@ -192,6 +192,10 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         return self.userData
     }
     
+    public func refreshTokenAccess() {
+        self.refreshToken()
+    }
+    
     func getInfo(modelResponse : TokenModel.Response) {
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
@@ -203,11 +207,11 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         
     }
     
-    public func refreshToken(refreshToken: String) {
+    func refreshToken() {
         let refreshRequest = RefreshModel.Request(application_id: self.APPLICATION_ID,
                                                   application_secret: self.APPLICATION_SECRET,
                                                   token_type: "bearer",
-                                                  refresh_token: refreshToken)
+                                                  refresh_token: self.tokenModel.refresh_token)
         
         SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/v1/partner/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
             
@@ -223,7 +227,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
                 self.delegate?.onIdTokenReceived(onIdTokenReceivedMessage: self.tokenModel.id_token!)
                 self.delegate?.onAuthorized(onAuthorizedMessage: "Authorized Success")*/
             }catch let error as NSError {
-                print("Failed to load: \(error.localizedDescription)")
+                print("Failed to load refresh: \(error.localizedDescription)")
             }
         })
     }
