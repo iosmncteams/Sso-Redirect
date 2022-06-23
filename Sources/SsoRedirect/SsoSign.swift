@@ -34,7 +34,6 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     
     var contextProvider: AuthContextProvider?
     var tokenModel = TokenModel.Response()
-    var refreshModel = RefreshModel.Response()
     var userData: String = ""
     
     var codeVerifier: String?
@@ -212,8 +211,8 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         
         SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/v1/partner/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
             do {
-                self.refreshModel = try JSONDecoder().decode(RefreshModel.Response.self, from: xdata)
-                print("REFRESH MODEL : \(self.refreshModel)")
+                self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
+                print("REFRESH MODEL : \(self.tokenModel)")
                 /*self.delegate?.onAccessTokenReceived(onAccessTokenReceivedMessage: self.tokenModel.access_token!)
                 self.delegate?.onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: "\(Utils.intToDate(expiresIn: self.tokenModel.expires_in!))")
                 self.delegate?.onRefreshTokenReceived(onRefreshTokenReceivedMessage: self.tokenModel.refresh_token!)
