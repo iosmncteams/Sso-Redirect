@@ -216,8 +216,6 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         
         SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/api/auth/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
             
-            print("JSON xDATA: \(xdata)")
-            
             do {
                 self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
                 print("REFRESH MODEL : \(self.tokenModel)")

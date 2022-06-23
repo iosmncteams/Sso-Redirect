@@ -36,6 +36,7 @@ enum SsoService {
                         // convert data to json
                         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                             // try to read out a dictionary
+                            print("JSON RESPONSE: \(json)")
                             if let xData = json["data"] as? [String:Any] {
                                 print("JSON xDATA: \(xData)")
                                 let jsonData = try JSONSerialization.data(withJSONObject: xData)
