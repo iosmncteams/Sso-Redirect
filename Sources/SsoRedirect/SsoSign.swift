@@ -28,7 +28,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     }
     
     var authSession: ASWebAuthenticationSession?
-    let cookiename = "expiry-fix-test"
+//    let cookiename = "expiry-fix-test"
     
     var delegate: SsoSignDelegate? = nil
     
@@ -100,8 +100,6 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         
         let baseUrl: String = "\(AUTH_URL_SSO)?application_id=\(APPLICATION_ID)&redirect_uri=\(self.CALLBACK_URL)&scope=\(APPLICATION_NAME)&code_challenge=\(codeChallenge!)&code_challenge_method=S256&response_type=code&state=1234567890"
         
-        print("BASE URL : \(baseUrl)")
-        
         self.authSession = ASWebAuthenticationSession(
             url: URL(string: baseUrl)!,
             callbackURLScheme: callbackURI,
@@ -115,11 +113,8 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
                 self.contextProvider?.clear() // clear context
             }
             
-            let cookievalue = Utils.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
-            
-            print("cookie value: \(String(describing: cookievalue))")
+//            let cookievalue = Utils.getQueryStringParameter(url: (successURL.absoluteString), param: self.cookiename)
             let auth_code = successURL.absoluteString.slice(from: "authorization_code=", to: "&state")
-            print("callback: \(String(describing: auth_code))")
             
             let tokenRequest = TokenModel.Request(application_id: self.APPLICATION_ID,
                                                   application_secret: self.APPLICATION_SECRET,
@@ -163,37 +158,37 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         })
     }
     
-    public func externalURLScheme() -> String? {
+    public func externalURLScheme() -> String {
         guard let urlTypes = Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [AnyObject],
               let urlTypeDictionary = urlTypes.first as? [String: AnyObject],
               let urlSchemes = urlTypeDictionary["CFBundleURLSchemes"] as? [AnyObject],
-              let externalURLScheme = urlSchemes.first as? String else { return nil }
+              let externalURLScheme = urlSchemes.first as? String else { return "" }
         
         return externalURLScheme
     }
     
-    public func getURLSchema() -> String? {
+    public func getURLSchema() -> String {
         guard let schemas = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String:Any]],
               let schema = schemas.first,
               let urlschema = schema["CFBundleURLName"] as? String
-        else { return nil }
+        else { return "" }
         
         return urlschema
     }
     
-    public func getBundleIdentifier() -> String? {
-        return Utils.getBundleIdentifier()
+    public func getBundleIdentifier() -> String {
+        return Utils.getBundleIdentifier() ?? ""
     }
     
-    public func getAccessToken() -> String? {
-        return tokenModel.access_token
+    public func getAccessToken() -> String {
+        return tokenModel.access_token ?? ""
     }
     
-    public func getIdToken() -> String? {
-        return tokenModel.id_token
+    public func getIdToken() -> String {
+        return tokenModel.id_token ?? ""
     }
     
-    public func getUserInfo() -> String? {
+    public func getUserInfo() -> String {
         return self.userData
     }
     
@@ -201,7 +196,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
         SsoService.requestWithHeader(method: .get, auth_Key: self.ACCESS_TOKEN, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata, statusCode in
-            
+            print("STATUS CODE: \(statusCode)")
             self.userData = String(data: xdata, encoding: String.Encoding.utf8)!
             self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: self.userData )
         })
