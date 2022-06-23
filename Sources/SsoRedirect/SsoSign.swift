@@ -214,7 +214,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         
         print("REFRESH REQ: \(refreshRequest.toJSON())")
         
-        SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/v1/partner/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
+        SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/api/auth/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
             
             print("JSON xDATA: \(xdata)")
             
