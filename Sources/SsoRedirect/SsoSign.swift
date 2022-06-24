@@ -34,6 +34,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     
     var contextProvider: AuthContextProvider?
     var tokenModel = TokenModel.Response()
+    var refreshModel = RefreshModel.Response()
     var userData: String = ""
     
     var codeVerifier: String?
@@ -50,6 +51,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
     var CALLBACK_URL: String = ""
     var SUFFIX_URL: String = "://oauth2redirect"//"://ssoredirectclient"
     var AUTH_KEY: String = "UzBZTjVYT0xRVTVuQWxkOkhLeHlLR05BOVYwMHVVaUJUbGY3bFE1djlpd2lFVVhrb01zQWhnaG9GZHF4Sg=="
+    var REFRESH_URL_SSO: String = "https://rc-game.rctiplus.com/api/auth/token/refresh"
     
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -121,7 +123,7 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
                                                   authorization_code: auth_code,
                                                   code_verifier: self.codeVerifier)
             
-            SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: tokenRequest.toJSON(), url: "\(self.TOKEN_URL_SSO)", isGetInfo: false, completion: { respon, xdata, statusCode in
+            SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: tokenRequest.toJSON(), url: self.TOKEN_URL_SSO, isGetInfo: false, completion: { respon, xdata, statusCode in
                 
                 do {
                     self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
@@ -153,6 +155,8 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         SsoService.requestWithHeader(method: .post, auth_Key: self.ACCESS_TOKEN, url: self.LOGOUT_URL_SSO, isGetInfo: false, completion: { respon, xdata, statusCode in
             if statusCode == 200 {
                 self.delegate?.onLogout(onLogoutMessage: "LOGOUT")
+            }else if statusCode == 401 {
+                self.refreshToken()
             }
         })
     }
@@ -199,9 +203,14 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
         self.ACCESS_TOKEN = "Bearer \(modelResponse.access_token!)"
         
         SsoService.requestWithHeader(method: .get, auth_Key: self.ACCESS_TOKEN, url: "\(self.USER_INFO_URL_SSO)", isGetInfo: true, completion: { respon, xdata, statusCode in
-            print("STATUS CODE: \(statusCode)")
-            self.userData = String(data: xdata, encoding: String.Encoding.utf8)!
-            self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: self.userData )
+            
+            if statusCode == 200 {
+                self.userData = String(data: xdata, encoding: String.Encoding.utf8)!
+                self.delegate?.onUserInfoReceived(onUserInfoReceivedMessage: self.userData )
+            }else if statusCode == 401 {
+                self.refreshToken()
+            }
+            
         })
         
     }
@@ -212,18 +221,13 @@ public class SsoSign: UIViewController, ASWebAuthenticationPresentationContextPr
                                                   token_type: "bearer",
                                                   refresh_token: self.tokenModel.refresh_token)
         
-        print("REFRESH REQ: \(refreshRequest.toJSON())")
-        
-        SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: "https://rc-game.rctiplus.com/api/auth/token/refresh", isGetInfo: false, completion: { respon, xdata, statusCode in
-            
+        SsoService.requestWithHeader(method: .post, auth_Key: self.AUTH_KEY, params: refreshRequest.toJSON(), url: self.REFRESH_URL_SSO, isGetInfo: false, completion: { respon, xdata, statusCode in
             do {
-                self.tokenModel = try JSONDecoder().decode(TokenModel.Response.self, from: xdata)
-                print("REFRESH MODEL : \(self.tokenModel)")
-                /*self.delegate?.onAccessTokenReceived(onAccessTokenReceivedMessage: self.tokenModel.access_token!)
-                self.delegate?.onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: "\(Utils.intToDate(expiresIn: self.tokenModel.expires_in!))")
-                self.delegate?.onRefreshTokenReceived(onRefreshTokenReceivedMessage: self.tokenModel.refresh_token!)
-                self.delegate?.onIdTokenReceived(onIdTokenReceivedMessage: self.tokenModel.id_token!)
-                self.delegate?.onAuthorized(onAuthorizedMessage: "Authorized Success")*/
+                self.refreshModel = try JSONDecoder().decode(RefreshModel.Response.self, from: xdata)
+                
+                self.delegate?.onAccessTokenReceived(onAccessTokenReceivedMessage: self.refreshModel.access_token!)
+                self.delegate?.onTokenExpiredTimeReceived(onTokenExpiredTimeReceivedMessage: "\(Utils.intToDate(expiresIn: self.refreshModel.expires_in!))")
+                self.delegate?.onIdTokenReceived(onIdTokenReceivedMessage: self.refreshModel.id_token!)
             }catch let error as NSError {
                 print("Failed to load refresh: \(error.localizedDescription)")
             }
